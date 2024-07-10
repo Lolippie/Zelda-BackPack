@@ -2,6 +2,7 @@
 using namespace std;
 #include <iostream>
 #include <string>
+#include <limits>
 // -------------------------------
 const char *textual(bool b) { return b ? "true" : "false"; }
 
@@ -295,15 +296,21 @@ void afficherTab(t_artefact **l_max, t_sac sac) {
 void affichageSupprimer(t_sac *sac) {
   string nom_supp;
   int pos;
+  bool validInput = false;
   for (int i = 0; i < sac->occupation; i++) {
     cout << (i + 1) << ") " << sac->contenu[i]->nom << ";" << endl;
   }
-  cout << "Entrez le numero de l'artefact que vous souhaitez supprimer : ";
-  cin >> pos;
-  if (pos <= 0 || pos > sac->occupation) {
-    cout << "La position est invalide, veuillez recommencer" << endl;
-    affichageSupprimer(sac);
+  while(!validInput){
+    cout << "Entrez le numero de l'artefact que vous souhaitez supprimer : ";
+    if (cin >> pos && pos > 0 && pos <= sac->occupation) {
+      validInput = true;
+    } else {
+      cout << "La position est invalide, veuillez recommencer" << endl;
+      cin.clear();
+      cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
   }
+
   nom_supp = sac->contenu[pos - 1]->nom;
   if (supprimerArtefact(sac, nom_supp)) {
     cout << "L'artefact a bien été supprimé" << endl;
@@ -420,7 +427,7 @@ void creerArtefact(t_sac *sac, t_cls_rarete **t_classe) {
     while (pos == -1) {
       cout << "voici les classes présentes : " << endl;
       int i = 0;
-      while (t_classe[i+1]!=nullptr){
+      while (t_classe[i + 1] != nullptr) {
         cout << " . " << t_classe[i]->classe_rarete << endl;
       }
       cout << "Donner sa classe : ";
@@ -460,7 +467,11 @@ void choixUti(t_sac *sac, t_cls_rarete **tab_classe) {
       choixUti(sac, tab_classe);
     }
   } else if (rep1 == "supprimer") {
-    affichageSupprimer(sac);
+    if (sac->occupation != 0) {
+      affichageSupprimer(sac);
+    } else {
+      cout << "Vous n'avez aucun artefact";
+    }
     cout << endl;
     choixUti(sac, tab_classe);
   } else if (rep1 == "afficher") {
